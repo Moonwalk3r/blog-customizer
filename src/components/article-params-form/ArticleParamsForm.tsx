@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import clsx from 'clsx';
 import { Button } from 'components/button';
 import { RadioGroup } from '../radio-group'; 
@@ -24,17 +24,6 @@ export const ArticleParamsForm: React.FC<ArticleParamsFormProps> = ({ isOpen, to
     contentWidth: contentWidthArr[0],
   });
 
-  useEffect(() => {
-    const savedFormData = localStorage.getItem('formData');
-    if (savedFormData) {
-      setFormData(JSON.parse(savedFormData));
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('formData', JSON.stringify(formData));
-  }, [formData]);
-
   const handleFontSelect = (option: OptionType) => {
     setFormData({ ...formData, fontFamilyOption: option });
   };
@@ -56,20 +45,15 @@ export const ArticleParamsForm: React.FC<ArticleParamsFormProps> = ({ isOpen, to
   };
 
   const handleResetClick = () => {
-    setFormData({
+    const defaultState = {
       fontFamilyOption: fontFamilyOptions[0],
       fontSizeOption: fontSizeOptions[0],
       fontColor: fontColors[0],
       backgroundColor: backgroundColors[0],
       contentWidth: contentWidthArr[0],
-    });
-    applyStyles({
-      fontFamilyOption: fontFamilyOptions[0],
-      fontSizeOption: fontSizeOptions[0],
-      fontColor: fontColors[0],
-      backgroundColor: backgroundColors[0],
-      contentWidth: contentWidthArr[0],
-    });
+    };
+    setFormData(defaultState);
+    applyStyles(defaultState);
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
