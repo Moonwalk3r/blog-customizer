@@ -1,118 +1,131 @@
-import { useState } from 'react';
-import clsx from 'clsx';
+import { ArrowButton } from 'components/arrow-button';
 import { Button } from 'components/button';
-import { RadioGroup } from '../radio-group'; 
-import { Select } from '../select';
+import { Text } from 'components/text';
 import styles from './ArticleParamsForm.module.scss';
-import { fontFamilyOptions, fontSizeOptions, fontColors, backgroundColors, contentWidthArr } from 'src/constants/articleProps';
+import { useRef, useState } from 'react';
+import clsx from 'clsx';
+import { Select } from '../select';
+import {
+	ArticleStateType,
+	backgroundColors,
+	contentWidthArr,
+	defaultArticleState,
+	fontColors,
+	fontFamilyOptions,
+	fontSizeOptions,
+} from 'src/constants/articleProps';
+import { RadioGroup } from '../radio-group';
 import { Separator } from '../separator';
-import { Text } from '../text';
-import { OptionType, ArticleStateType } from 'src/constants/articleProps';
+import { useClose } from '../select/hooks/useClose';
 
-interface ArticleParamsFormProps {
-  isOpen: boolean;
-  toggleSideBar: () => void;
-  applyStyles: (data: ArticleStateType) => void; 
-}
-
-export const ArticleParamsForm: React.FC<ArticleParamsFormProps> = ({ isOpen, toggleSideBar, applyStyles }) => {
-  const [formData, setFormData] = useState<ArticleStateType>({
-    fontFamilyOption: fontFamilyOptions[0],
-    fontSizeOption: fontSizeOptions[0],
-    fontColor: fontColors[0],
-    backgroundColor: backgroundColors[0],
-    contentWidth: contentWidthArr[0],
-  });
-
-  const handleFontSelect = (option: OptionType) => {
-    setFormData({ ...formData, fontFamilyOption: option });
-  };
-
-  const handleFontSizeSelect = (option: OptionType) => {
-    setFormData({ ...formData, fontSizeOption: option });
-  };
-
-  const handleFontColorSelect = (option: OptionType) => {
-    setFormData({ ...formData, fontColor: option });
-  };
-
-  const handleBackgroundColorSelect = (option: OptionType) => {
-    setFormData({ ...formData, backgroundColor: option });
-  };
-
-  const handleContentWidthSelect = (option: OptionType) => {
-    setFormData({ ...formData, contentWidth: option });
-  };
-
-  const handleResetClick = () => {
-    const defaultState = {
-      fontFamilyOption: fontFamilyOptions[0],
-      fontSizeOption: fontSizeOptions[0],
-      fontColor: fontColors[0],
-      backgroundColor: backgroundColors[0],
-      contentWidth: contentWidthArr[0],
-    };
-    setFormData(defaultState);
-    applyStyles(defaultState);
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    applyStyles(formData); 
-    toggleSideBar(); 
-  };
-
-  return (
-    <aside className={clsx(styles.container, { [styles.container_open]: isOpen })}>
-      <form className={styles.form} onSubmit={handleSubmit}>
-        <Text as="h2" size={31} weight={800} uppercase={true} fontStyle='normal'>Задайте параметры</Text>
-        <Select
-          options={fontFamilyOptions}
-          selected={formData.fontFamilyOption}
-          onChange={handleFontSelect}
-          title="Шрифт"
-        />
-
-        <RadioGroup
-          name="fontSize"
-          options={fontSizeOptions}
-          selected={formData.fontSizeOption}
-          onChange={handleFontSizeSelect}
-          title="Размер шрифта"
-        />
-
-        <Select
-          options={fontColors}
-          selected={formData.fontColor}
-          onChange={handleFontColorSelect}
-          title="Цвет шрифта"
-        />
-
-        <hr />
-
-        <Separator />
-
-        <Select
-          options={backgroundColors}
-          selected={formData.backgroundColor}
-          onChange={handleBackgroundColorSelect}
-          title="Цвет фона"
-        />
-
-        <Select
-          options={contentWidthArr}
-          selected={formData.contentWidth}
-          onChange={handleContentWidthSelect}
-          title="Ширина контента"
-        />
-
-        <div className={styles.bottomContainer}>
-          <Button onClick={handleResetClick} title='Сбросить' type='reset' />
-          <Button type='submit' title='Применить'/>
-        </div>
-      </form>
-    </aside>
-  );
+export type ArticleParamsFormProps = {
+	propertys: ArticleStateType;
+	setPropertys: (propertys: ArticleStateType) => void;
 };
 
-export default ArticleParamsForm;
+export const ArticleParamsForm = ({
+	propertys,
+	setPropertys,
+}: ArticleParamsFormProps) => {
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
+	const [changeFontFamilyOption, setChangeFontFamilyOption] = useState(
+		propertys.fontFamilyOption
+	);
+	const [changeFontSizeOption, setchangeFontSizeOption] = useState(
+		propertys.fontSizeOption
+	);
+	const [changeFontColor, setChangeFontColor] = useState(propertys.fontColor);
+	const [changeBackgroundColor, setChangeBackgroundColor] = useState(
+		propertys.backgroundColor
+	);
+	const [changeContentWidth, setChangeContentWidth] = useState(
+		propertys.contentWidth
+	);
+
+	const toggleForm = () => {
+		setIsMenuOpen(!isMenuOpen);
+	};
+
+	const update = () => {
+		event?.preventDefault();
+		setPropertys({
+			fontFamilyOption: changeFontFamilyOption,
+			fontSizeOption: changeFontSizeOption,
+			fontColor: changeFontColor,
+			backgroundColor: changeBackgroundColor,
+			contentWidth: changeContentWidth,
+		});
+	};
+	const reset = () => {
+		setPropertys(defaultArticleState);
+		setChangeFontFamilyOption(defaultArticleState.fontFamilyOption);
+		setchangeFontSizeOption(defaultArticleState.fontSizeOption);
+		setChangeFontColor(defaultArticleState.fontColor);
+		setChangeBackgroundColor(defaultArticleState.backgroundColor);
+		setChangeContentWidth(defaultArticleState.contentWidth);
+	};
+
+	const ref = useRef<HTMLDivElement | null>(null);
+
+	function closeMenu(): void {
+		setIsMenuOpen(false);
+	}
+
+	useClose({
+		isOpen: isMenuOpen,
+		onClose: closeMenu,
+		rootRef: ref,
+	});
+
+	return (
+		<div ref={ref}>
+			<ArrowButton isOpen={isMenuOpen} onClick={toggleForm} />
+			<aside
+				className={clsx(styles.container, {
+					[styles.container_open]: isMenuOpen,
+				})}>
+				<form className={styles.form} onSubmit={update}>
+					<Text size={31} weight={800} uppercase={true}>
+						Задайте параметры
+					</Text>
+					<Select
+						options={fontFamilyOptions}
+						selected={changeFontFamilyOption}
+						onChange={setChangeFontFamilyOption}
+						title='Шрифт'
+					/>
+					<RadioGroup
+						name='radio'
+						options={fontSizeOptions}
+						selected={changeFontSizeOption}
+						onChange={setchangeFontSizeOption}
+						title='Размер шрифта'
+					/>
+					<Select
+						options={fontColors}
+						selected={changeFontColor}
+						onChange={setChangeFontColor}
+						title='Цвет шрифта'
+					/>
+					<Separator />
+					<Select
+						options={backgroundColors}
+						selected={changeBackgroundColor}
+						onChange={setChangeBackgroundColor}
+						title='Цвет фона'
+					/>
+					<Select
+						options={contentWidthArr}
+						selected={changeContentWidth}
+						title='Ширина контента'
+						onChange={setChangeContentWidth}
+					/>
+					<div className={styles.bottomContainer}>
+						<Button title='Сбросить' type='reset' onClick={reset} />
+						<Button title='Применить' type='submit' />
+					</div>
+				</form>
+			</aside>
+		</div>
+	);
+};
